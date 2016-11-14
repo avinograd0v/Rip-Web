@@ -1,0 +1,18 @@
+{% extends './base.html' %}
+{% block title %}Ask question{% endblock %}
+
+{% block content %}
+    <h3>Add a new question</h3>
+    {% if error_message %}
+        <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+    <form class="form-horizontal" action="" method="post">
+        {% csrf_token %}
+        {% include 'polls/form-template.html' %}
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-success">Ask</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

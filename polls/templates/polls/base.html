@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    {% load static %}
+    <link href="{% static "polls/dist/css/bootstrap.min.css" %}" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static "polls/style.css" %}" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <header>
+        <div class="container login-search-container">
+      <div class="raw">
+          {% if request.user.is_authenticated %}
+          <div class="col-md-2 col-md-offset-10">
+              <a href="#" id="user-bar-link">{{ request.user.username }}</a>
+              {% include 'polls/user_bar.html' %}
+          </div>
+          {% else %}
+          <div class="col-md-1 col-md-offset-9">
+              <a href="{% url 'polls:user-login' %}" class="login-link">Войти</a>
+          </div>
+          <div class="col-md-1">
+              <a href="{% url 'polls:signup' %}">Зарегистрироваться</a>
+          </div>
+          {% endif %}
+      </div>
+    </div>
+        <div class="container {% if request.path == '/polls/' %} is-center {% endif %} main-content-container">
+      <div class="raw">
+      <div class="col-md-1 col-sm-1 col-sm-offset-1 col-md-offset-2 col-logo">
+        <div class="main_logo">
+           <a href="{% url 'polls:index' %}"><div class="main_logo_default" role="img" aria-label="Q!Board"></div></a>
+        </div>
+      </div>
+      <div class="col-md-6 col-sm-6 col-search">
+          <form id="custom-search-input" class="" role="search" method="get" action="{% url 'polls:questions' "all" %}">
+              <input type="text" name="q" class="form-control input-lg" placeholder="Задать вопрос..." />
+                  <div class="input-group main-ask-search">
+                      <span class="input-group-btn">
+                          <button class="btn btn-info btn-lg btn-show-more" type="button">
+                              <i class="glyphicon glyphicon-backward"></i>
+                          </button>
+                          <button class="btn btn-info btn-lg btn-search" type="submit">
+                              Search
+                          </button>
+                          <a href="{% url 'polls:add-question' %}">
+                              <button {% if not request.user.is_authenticated %} disabled {% endif %} class="btn btn-info btn-lg btn-ask" type="button" name="ask" title="Sign in to ask">
+                                  Ask
+                              </button>
+                          </a>
+                      </span>
+                  </div>
+          </form>
+      </div>
+      </div>
+      </div>
+    </header>
+        <div class="main-content container">
+           {% block content %}{% endblock %}
+        </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="{% static "polls/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "polls/style.js" %}"></script>
+    <script src="{% static "polls/ajax_logic.js" %}"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>

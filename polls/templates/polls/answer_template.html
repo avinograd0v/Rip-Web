@@ -1,0 +1,71 @@
+{% load polls_extras %}
+
+<div id="answer-{{ answer.id }}" class="answer">
+    {% if answer.author == request.user %}
+        <a id="delete-answer-{{ answer.id }}">
+            <button class="btn btn-default btn-sm" title="Delete answer">
+                <span class="glyphicon glyphicon-trash"></span>
+            </button>
+        </a>
+        <a id="edit-answer-{{ answer.id }}">
+            <button class="btn btn-default btn-sm" title="Edit answer">
+                <span class="glyphicon glyphicon-wrench"></span>
+            </button>
+        </a>
+    {% endif %}
+    {% if request.user == answer.question.author %}
+        <a id="is-right-{{ answer.id }}">
+            <button class="btn btn-default btn-sm {% if answer.isRight %} btn-success {% endif %}"
+                    title="This answer helped me!">
+                <span class="glyphicon  glyphicon-ok"></span>
+            </button>
+        </a>
+    {% elif answer.isRight %}
+            <span class="glyphicon  glyphicon-ok" style="color: #5cb85c;"></span>
+    {% endif %}
+    <div class="author-avatar" style="width: 100px; height: 100px;">
+        <img class="img-circle img-responsive" src="{{ answer.author.profile.avatar.url }}">
+    </div>
+    <div class="user-nickname">
+        {{ answer.author.username }}
+    </div>
+    <div class="rating-container">
+        <a id="approve-answer-{{ answer.id }}">
+            <button type="button"  class="btn btn-default thumbs-up
+                    {% if request.user in answer.approved_by.all %} btn-success {% endif %}">
+                <i class="glyphicon glyphicon-thumbs-up"></i>
+            </button>
+        </a>
+        <div class="rating">
+            {{ answer.rating }}
+        </div>
+        <a id="disapprove-answer-{{ answer.id }}">
+            <button type="button" class="btn btn-default thumbs-down
+                 {% if request.user in answer.disapproved_by.all %} btn-danger {% endif %}">
+                <i class="glyphicon glyphicon-thumbs-down"></i>
+            </button>
+        </a>
+    </div>
+    <div class="answer-details">
+        {{ answer.content }}
+    </div>
+    {% if answer.author == request.user %}
+        <form hidden class="form-horizontal answer-edit-form" action="" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <span class="text-danger small">{{ add_answer_form.content.errors }}</span>
+                </div>
+                <div class="col-sm-2">{{ add_answer_form.content }}</div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-success">Edit</button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+    <div class="answer-date">
+        <time>{{ answer.publicationDate }}</time>
+    </div>
+</div>
