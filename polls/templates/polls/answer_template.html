@@ -27,7 +27,9 @@
         <img class="img-circle img-responsive" src="{{ answer.author.profile.avatar.url }}">
     </div>
     <div class="user-nickname">
-        {{ answer.author.username }}
+        <a href="{% url 'polls:user-profile' answer.author.id %}">
+            {{ answer.author.username }}
+        </a>
     </div>
     <div class="rating-container">
         <a id="approve-answer-{{ answer.id }}">

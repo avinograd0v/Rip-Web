@@ -15,8 +15,6 @@ urlpatterns = [
 
     url(r'^question/add/$', views.QuestionCreate.as_view(), name='add-question'),
 
-    url(r'^question/(?P<pk>[0-9]+)/edit/$', views.QuestionUpdate.as_view(), name='update-question'),
-
     url(r'^question/(?P<pk>[0-9]+)/delete/$', views.QuestionDelete.as_view(), name='delete-question'),
 
     url(r'^question/(?P<pk>[0-9]+)/edit_answer/$', views.AnswerUpdate.as_view(), name='edit-answer'),
@@ -37,11 +35,15 @@ urlpatterns = [
 
     url(r'^question/(?P<pk>[0-9]+)/edit_question/$', views.QuestionUpdate.as_view(), name='edit-question'),
 
-    url(r'^logout/$', views.UserLogout.as_view(), name='user-logout'),
+    url(r'^logout/$', auth_views.logout, name='user-logout'),
 
     url(r'^signin/$', auth_views.login, {'template_name': 'polls/login.html'}, name='user-login'),
 
     url(r'^add_tag/$', views.AddFilterTag.as_view(), name='add-tag'),
 
     url(r'^remove_tag/$', views.RemoveFilterTag.as_view(), name='remove-tag'),
+
+    url(r'^user/(?P<pk>[0-9]+)/$', views.UserDetail.as_view(), name='user-profile'),
+
+    url(r'^user/(?P<pk>[0-9]+)/edit/$', views.UserUpdate.as_view(), name='edit-user')
 ]

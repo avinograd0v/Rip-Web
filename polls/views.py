@@ -31,12 +31,6 @@ class AddFilterTag(View):
         return HttpResponse(tag_pk, content_type='text/plain')
 
 
-class FilteredQuestionsList(generic.ListView):
-    model = Question
-    template_name = 'polls/question_list.html'
-    pass
-
-    
 class RemoveFilterTag(View):
     def post(self, request, *args, **kwargs):
 
@@ -87,6 +81,11 @@ class QuestionDetail(generic.DetailView):
         return context
 
 
+class UserDetail(generic.DeleteView):
+    model = User
+    template_name = 'polls/user_profile.html'
+
+
 class QuestionCreate(LoginRequiredMixin, CreateView):
     model = Question
     fields = ['header', 'content', 'tags']
@@ -118,6 +117,13 @@ class QuestionUpdate(LoginRequiredMixin, View):
             json.dumps(response_data),
             content_type="application/json"
         )
+
+
+class UserUpdate(LoginRequiredMixin, UpdateView):
+    model = User
+
+    fields = ['username', 'email', 'password']
+    template_name = "polls/edit_profile_form.html"
 
 
 class QuestionDelete(LoginRequiredMixin, DeleteView):
@@ -318,13 +324,6 @@ class UserFormView(View):
             'user_form': user_form,
             'profile_form': profile_form,
         })
-
-
-class UserLogout(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return redirect('polls:index')
-
 
 
 #def questions(request, tag_name):

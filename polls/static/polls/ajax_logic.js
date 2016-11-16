@@ -1,3 +1,8 @@
+$('div[id^=question-]').on('submit', function(e){
+    if(confirm('are you sure you want to remove this post?') == false)
+        e.preventDefault();
+});
+
 $('#active-tags-container').on('click', 'a[id^=remove-tag-]', function(){
 
     var tag_primary_key = $(this).attr('id').split('-')[2];

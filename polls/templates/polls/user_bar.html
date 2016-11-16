@@ -1,6 +1,6 @@
 <div id="user-bar" class="panel">
     <div class="panel-body panel-default">
-        <a href="#">Settings</a>
+        <a href="{% url 'polls:user-profile' request.user.id %}">Settings</a>
         <a href="{% url 'polls:user-logout' %}">Log out</a>
         <div class="user-avatar" style="width: 100px; height: 100px;">
             <img class="img-responsive img-circle" src="{{ request.user.profile.avatar.url }}">

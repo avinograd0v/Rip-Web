@@ -20,13 +20,25 @@
     <div class="panel panel-default">
         <div class="panel-body">
     {% if all_questions %}
+        <div class="sort-by-container">
+            <a id="sort-by-date" href="#">
+                By date
+                <i class="glyphicon glyphicon-arrow-down"></i>
+            </a>
+            <a id="sort-by-rating" href="#">
+                By rating
+                <i class="glyphicon glyphicon-arrow-down"></i>
+            </a>
+        </div>
         {% for question in all_questions %}
             <div id="question-{{ question.id }}" class="question-container center-block">
                 <div class="author-avatar" style="width: 100px; height: 100px;">
                     <img class="img-circle img-responsive" src="{{ question.author.profile.avatar.url }}">
                  </div>
                 <div class="user-nickname">
-                    {{ question.author.username }}
+                    <a href="{% url 'polls:user-profile' question.author.id %}">
+                        {{ question.author.username }}
+                    </a>
                 </div>
                 <div class="rating-container">
                     <a id="approve-question-{{ question.id }}">
@@ -51,7 +63,7 @@
                 <div class="question-details">
                     {{ question.content }}
                 </div>
-                <div class="tags-container">
+                <div class="question-tags-container">
                     {% for tags in question.tags.all %}
                         <a href="{% url 'polls:questions' tags.word|slugify %}">{{ tags.word }}</a>
                     {% endfor %}
@@ -77,7 +89,8 @@
             <div class="panel-body panel-default">
                 {% for tag in tags %}
                     <a href="#" id="add-tag-{{ tag.id }}" {% if tag.id in request.session.tags %} hidden {% endif %}>
-                        {{ tag }}</a>
+                        {{ tag }}
+                    </a>
                 {% endfor %}
             </div>
         </div>

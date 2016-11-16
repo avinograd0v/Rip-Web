@@ -1,0 +1,51 @@
+{% extends './base.html' %}
+{% block title %} {{ user.username }} {% endblock %}
+
+{% block content %}
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="user-name">
+            {{ user.username }}
+        </div>
+        {% if request.user == user %}
+            <a href="{% url 'polls:edit-user' request.user.id %}" id="edit-profile-{{ request.user.id }}">
+                <button class="btn btn-default btn-sm" title="Edit your profile">
+                    <span class="glyphicon glyphicon-wrench"></span>
+                </button>
+            </a>
+        {% endif %}
+        <div class="registration-date">
+            {{ user.date_joined }}
+        </div>
+        <div class="user-avatar">
+             <img class="img-responsive" src="{{ user.profile.avatar.url }}">
+        </div>
+        <div class="user-rating">
+           <b title="Counts automatically">{{ user.profile.rating }}</b>
+        </div>
+        <div class="questions-of-user">
+            {% if user.question_set.all|length == 0 %}
+                No questions asked
+            {% endif %}
+            {% for question in user.question_set.all %}
+                <a href="{% url 'polls:question' question.id %}" >{{ question.header }}</a>
+                {{ question.rating }}
+            {% endfor %}
+        </div>
+        <div class="answers-of-user">
+            {% if user.answer_set.all|length == 0 %}
+                No answers made
+            {% endif %}
+            {% for answer in user.answer_set.all %}
+                <a href="{% url 'polls:question' answer.question.id %}#answer-{{ answer.id }}">
+                    {{ answer.content }}
+                </a>
+                {{ answer.rating }}
+                {% if answer.isRight %}
+                    <span class="glyphicon  glyphicon-ok" style="color: #5cb85c;"></span>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

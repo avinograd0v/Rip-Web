@@ -112,3 +112,7 @@
 .visible{
     display: block !important;
 }
+
+.user-avatar{
+    width: 180px;
+}

@@ -3,11 +3,11 @@
 
 {% block content %}
     <h3>Sign in</h3>
-    {% if error_message %}
-        <p><strong>{{ error_message }}</strong></p>
-    {% endif %}
     <form class="form-horizontal" action="" method="post">
         {% csrf_token %}
+        {% if form.errors %}
+            <p class="alert-danger">Your username or password didn't match. Please try again.</p>
+        {% endif %}
         {% include 'polls/form-template.html' %}
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
@@ -15,4 +15,5 @@
             </div>
         </div>
     </form>
+    <p><a href="#">Lost password?</a></p>
 {% endblock %}
