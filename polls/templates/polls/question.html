@@ -2,6 +2,8 @@
 {% block title %}{{ question.header }}{% endblock %}
 
 {% block content %}
+    <div class="panel panel-default">
+        <div class="panel-body">
     <div id="question-{{ question.id }}" class="question-container">
          {% if question.author == request.user %}
          <form action="{% url 'polls:delete-question' question.id %}" method="post" style="display: inline;">
@@ -82,4 +84,6 @@
     {% else %}
         Log in to answer!
     {% endif %}
+        </div>
+    </div>
 {% endblock %}

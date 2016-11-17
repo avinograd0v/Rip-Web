@@ -21,15 +21,16 @@
         <div class="panel-body">
     {% if all_questions %}
         <div class="sort-by-container">
-            <a id="sort-by-date" href="#">
-                By date
-                <i class="glyphicon glyphicon-arrow-down"></i>
+            <a id="sort-by-date" class="{% if request.session.sort_by == 'date_down' %} mark {% endif %}" href="#">
+                    By date
+                    <i class="glyphicon glyphicon-menu-down"></i>
             </a>
-            <a id="sort-by-rating" href="#">
-                By rating
-                <i class="glyphicon glyphicon-arrow-down"></i>
+            <a id="sort-by-rating" class="{% if request.session.sort_by == 'rating_down' %} mark {% endif %}" href="#">
+                    By rating
+                    <i class="glyphicon glyphicon-menu-down"></i>
             </a>
         </div>
+        <div id="all-questions">
         {% for question in all_questions %}
             <div id="question-{{ question.id }}" class="question-container center-block">
                 <div class="author-avatar" style="width: 100px; height: 100px;">
@@ -61,7 +62,7 @@
                     {{ question.header }}
                 </div>
                 <div class="question-details">
-                    {{ question.content }}
+                    {{ question.content|truncatechars:300 }}
                 </div>
                 <div class="question-tags-container">
                     {% for tags in question.tags.all %}
@@ -79,6 +80,7 @@
                 </div>
             </div>
         {% endfor %}
+        </div>
     {% else %}
         По вашему запросу ничего не найдено
     {% endif %}

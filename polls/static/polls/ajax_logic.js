@@ -1,3 +1,52 @@
+$('#sort-by-date').on('click', function(){
+    if ($(this).hasClass('mark')){
+        $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
+    }else {
+        $(this).next().removeClass('mark');
+        $(this).addClass('mark');
+    }
+
+    var direction = 'down';
+    if($(this).children('i').hasClass('glyphicon-menu-up'))
+        direction = 'up';
+
+    sort_answers(direction, 'date')
+});
+
+$('#sort-by-rating').on('click', function(){
+    if ($(this).hasClass('mark')){
+        $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
+    }else {
+        $(this).prev().removeClass('mark');
+        $(this).addClass('mark');
+    }
+
+    var direction = 'down';
+    if($(this).children('i').hasClass('glyphicon-menu-up'))
+        direction = 'up';
+
+    sort_answers(direction, 'rating')
+});
+
+function sort_answers(direction, criterion) {
+    $.ajax({
+        url: '/polls/sort_questions/',
+        type: 'POST',
+        data: {
+            sortby: criterion + '_' + direction
+        },
+        success: function(html) {
+            $(html).hide().prependTo("#all-questions").fadeIn();
+        },
+        error : function(xhr, errmsg, err) {
+            // Show an error
+            $('#results').html("<div class='alert-box alert radius' data-alert>"+ "Oops! We have encountered an error. <a href='#' class='close'>&times;</a></div>"); // add error to the dom
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    })
+}
+
+
 $('div[id^=question-]').on('submit', function(e){
     if(confirm('are you sure you want to remove this post?') == false)
         e.preventDefault();

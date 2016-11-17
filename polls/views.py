@@ -63,11 +63,22 @@ class QuestionsView(generic.ListView):
         context['active_tags'] = []
         active_tags_ids = self.request.session.get('tags', [])
 
+        self.request.session['sort_by'] = 'rating_down'
+        #sort_by = self.request.session.get('sort_by', default='rating_down')
+        #print(self.request.session.get('sort_by'))
         for tag_id in reversed(active_tags_ids):
             context.get('active_tags').append(Tag.objects.get(id=tag_id))
 
         context['tags'] = Tag.objects.all()
+        print(self.request.POST.get('sortby'))
         return context
+
+
+class QuestionsSort(generic.ListView):
+    model = Question
+
+    def post(self, request, *args, **kwargs):
+        print(request.POST.get('sortby'))
 
 
 class QuestionDetail(generic.DetailView):

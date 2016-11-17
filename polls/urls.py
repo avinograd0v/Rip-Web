@@ -45,5 +45,7 @@ urlpatterns = [
 
     url(r'^user/(?P<pk>[0-9]+)/$', views.UserDetail.as_view(), name='user-profile'),
 
-    url(r'^user/(?P<pk>[0-9]+)/edit/$', views.UserUpdate.as_view(), name='edit-user')
+    url(r'^user/(?P<pk>[0-9]+)/edit/$', views.UserUpdate.as_view(), name='edit-user'),
+
+    url(r'^sort_questions/$', views.QuestionsSort.as_view(), name='sort-questions'),
 ]
