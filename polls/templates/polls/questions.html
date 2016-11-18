@@ -2,47 +2,62 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-    <div id="active-tags-container" class="container">
-        {% for tag in active_tags %}
+    <div class="row">
+        <div id="active-tags-container" class="container col-md-8 col-md-offset-2">
+            {% for tag in active_tags %}
                 <a id="remove-tag-{{ tag.id }}">
                     <button class="btn btn-default btn-success btn-sm">
                         {{ tag }}
                         <i class="glyphicon glyphicon-remove"></i>
                     </button>
                 </a>
-        {% endfor %}
-        <a id="remove-all-tags" {% if active_tags|length == 0 %} hidden {% endif %}>
-            <button class="btn btn-default btn-sm">
-                <i class="glyphicon glyphicon-remove"></i>
-            </button>
-        </a>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-body">
-        <div class="sort-by-container">
-            <a id="sort-by-date" class="{% if 'date' in request.session.sort_by %} mark {% endif %}" href="#">
-                    By date
-                    <i class="glyphicon {% if 'date_up' in request.session.sort_by %} glyphicon-menu-up
-                                        {% else %} glyphicon-menu-down {% endif %}"></i>
-            </a>
-            <a id="sort-by-rating" class="{% if 'rating' in request.session.sort_by %} mark {% endif %}" href="#">
-                    By rating
-                    <i class="glyphicon {% if 'rating_up' in request.session.sort_by %} glyphicon-menu-up
-                                        {% else %} glyphicon-menu-down {% endif %}"></i>
+            {% endfor %}
+            <a id="remove-all-tags" {% if active_tags|length == 0 %} hidden {% endif %}>
+                <button class="btn btn-default btn-sm">
+                    <i class="glyphicon glyphicon-remove"></i>
+                </button>
             </a>
         </div>
-        <div id="all-questions">
-            {% if all_questions %}
-                {% include 'polls/question_template.html' %}
-            {% else %}
-                По вашему запросу ничего не найдено
-            {% endif %}
+    </div>
+    <div class="row">
+        <div class="container panel panel-default col-md-8 col-md-offset-2">
+            <div class="panel-body">
+                <div class="sort-by-container col-md-10">
+                    <a id="sort-by-date" class="{% if 'date' in request.session.sort_by %} mark {% endif %}" href="#">
+                        By date
+                        <i class="glyphicon {% if 'date_up' in request.session.sort_by %} glyphicon-menu-up
+                                        {% else %} glyphicon-menu-down {% endif %}"></i>
+                    </a>
+                    <a id="sort-by-rating" class="{% if 'rating' in request.session.sort_by %} mark {% endif %}"
+                       href="#">
+                        By rating
+                        <i class="glyphicon {% if 'rating_up' in request.session.sort_by %} glyphicon-menu-up
+                                        {% else %} glyphicon-menu-down {% endif %}"></i>
+                    </a>
+                </div>
+                <div class="container tools-container col-md-2">
+                    <a id="refresh" href="#" title="Refresh" class="col-md-1">
+                        <i class="glyphicon glyphicon-refresh"></i>
+                    </a>
+                    <a id="close" href="#" title="Close" class="col-md-1">
+                        <i class="glyphicon glyphicon-remove"></i>
+                    </a>
+                </div>
+                <div id="all-questions">
+                    {% if all_questions %}
+                        {% include 'polls/question_template.html' %}
+                    {% endif %}
+                    <div id="no-questions-found">{% if not all_questions %}По вашему запросу ничего не
+                        найдено{% endif %}</div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                {% include 'polls/paginator.html' %}
+            </div>
         </div>
-    </div>
-    </div>
-        <div id="tags-container" class="container">
-        <div class="panel">
-            <div class="panel-body panel-default">
+        <div id="tags-container" class="container panel panel-default col-md-2">
+            <h4 class="text-center">Tags</h4>
+            <div class="panel-body">
                 {% for tag in tags %}
                     <a href="#" id="add-tag-{{ tag.id }}" {% if tag.id in request.session.tags %} hidden {% endif %}>
                         {{ tag }}
@@ -50,5 +65,6 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
     </div>
 {% endblock %}

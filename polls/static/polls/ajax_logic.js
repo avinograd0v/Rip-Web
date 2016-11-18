@@ -1,4 +1,6 @@
-$('#sort-by-date').on('click', function(){
+$('#sort-by-date').on('click', function(e){
+    e.preventDefault();
+
     if ($(this).hasClass('mark')){
         $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
     }else {
@@ -15,7 +17,9 @@ $('#sort-by-date').on('click', function(){
     sort_answers(direction, 'date')
 });
 
-$('#sort-by-rating').on('click', function(){
+$('#sort-by-rating').on('click', function(e){
+    e.preventDefault();
+
     if ($(this).hasClass('mark')){
         $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
     }else {
@@ -36,7 +40,8 @@ function sort_answers(direction, criterion) {
         url: '/polls/sort_questions/',
         type: 'POST',
         data: {
-            sortby: criterion + '_' + direction
+            sortby: criterion + '_' + direction,
+            page: getUrlParameter('page')
         },
         success: function(html) {
             $("#all-questions").html("");
@@ -61,29 +66,31 @@ $('#active-tags-container').on('click', 'a[id^=remove-tag-]', function(){
     var tag_primary_key = $(this).attr('id').split('-')[2];
     var tag_name = $(this).children('button').text();
 
-    remove_tag(tag_primary_key, tag_name);
+    remove_tag(tag_primary_key);
 
-    $("#active-tags-container:only-child").fadeOut();
     console.log($("#active-tags-container:only-child"));
     $(this).fadeOut(300, function () {$(this).remove();});
 });
 
-function remove_tag(tag_primary_key, tag_name){
+function remove_tag(tag_primary_key){
     $.ajax({
         url : "/polls/remove_tag/",
         type : "POST",
         data: {
-            tagpk : tag_primary_key
+            tagpk : tag_primary_key,
+            page : getUrlParameter('page')
         },
-        success : function (questions) {
+        success : function (response) {
             $('#add-tag-' + tag_primary_key).fadeIn();
 
             $("#all-questions").html("");
-            if(questions == ""){
-                $("#all-questions").text("По вашему запросу ничего не найдено").fadeIn();
+            if(response.questions_html == ""){
+                $("#all-questions").html("<div id='no-questions-found'> По вашему запросу ничего не найдено </div>").fadeIn();
             }else {
-                $(questions).hide().prependTo("#all-questions").fadeIn();
+                $(response.questions_html).hide().prependTo("#all-questions").fadeIn();
             }
+
+            $("#pagination").html(response.paginator_html);
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -112,20 +119,23 @@ function add_tag(tag_primary_key, tag_name){
         url : "/polls/add_tag/",
         type : "POST",
         data: {
-            tagpk : tag_primary_key
+            tagpk : tag_primary_key,
+            page : getUrlParameter('page')
         },
-        success : function (questions) {
+        success : function (response) {
             var html = "<a id='remove-tag-" + tag_primary_key + "'><button class='btn btn-default btn-success btn-sm'>" +
                     tag_name + "<i class='glyphicon glyphicon-remove'></i></button></a>";
 
             $(html).hide().prependTo("#active-tags-container").fadeIn();
 
             $("#all-questions").html("");
-            if(questions == ""){
-                $("#all-questions").text("По вашему запросу ничего не найдено").fadeIn();
+            if(response.questions_html == ""){
+                $("#all-questions").html("<div id='no-questions-found'> По вашему запросу ничего не найдено </div>").fadeIn();
             }else {
-                $(questions).hide().prependTo("#all-questions").fadeIn();
+                $(response.questions_html).hide().prependTo("#all-questions").fadeIn();
             }
+
+            $("#pagination").html(response.paginator_html);
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -139,7 +149,7 @@ function add_tag(tag_primary_key, tag_name){
 
 
 $("div[id^=question-]").on('click', 'a[id^=edit-question-]', function(){
-    form = $(this).siblings('.question-edit-form');
+    form = $(this).parent().parent().next().find('.question-edit-form');
     var textarea = form.find('#question-text');
     var input = form.find('#id_header');
     var current_question_details = form.prev();
@@ -192,7 +202,7 @@ $('div[id^=question-]').on('click', 'a[id^=approve-question-]', function(){
     var question_primary_key = $(this).attr('id').split('-')[2];
     console.log(question_primary_key); // sanity check
     $(this).children('button').toggleClass('btn-success');
-    $(this).next().next().children('button').removeClass('btn-danger');
+    $(this).parent().next().next().find('button').removeClass('btn-danger');
     approve_question(question_primary_key, this);
 });
 
@@ -203,7 +213,7 @@ function approve_question(question_primary_key,  btn_clicked) {
         type: 'post',
         data: {questionpk: question_primary_key},
         success: function(new_rating) {
-            $(btn_clicked).next().text(new_rating);
+            $(btn_clicked).parent().next().text(new_rating);
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -217,7 +227,7 @@ $('div[id^=question-]').on('click', 'a[id^=disapprove-question-]', function(){
     var question_primary_key = $(this).attr('id').split('-')[2];
     console.log(question_primary_key); // sanity check
     $(this).children('button').toggleClass('btn-danger');
-    $(this).prev().prev().children('button').removeClass('btn-success');
+    $(this).parent().prev().prev().find('button').removeClass('btn-success');
     disapprove_question(question_primary_key, this);
 });
 
@@ -228,7 +238,7 @@ function disapprove_question(question_primary_key, btn_clicked){
         type: 'post',
         data: {questionpk: question_primary_key},
         success : function(new_rating){
-            $(btn_clicked).prev().text(new_rating);
+            $(btn_clicked).parent().prev().text(new_rating);
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -265,7 +275,7 @@ $("#answers").on('click', 'a[id^=disapprove-answer-]', function(){
     var answer_primary_key = $(this).attr('id').split('-')[2];
     console.log(answer_primary_key); // sanity check
     $(this).children('button').toggleClass('btn-danger');
-    $(this).prev().prev().children('button').removeClass('btn-success');
+    $(this).parent().prev().prev().find('button').removeClass('btn-success');
     disapprove_answer(answer_primary_key, this);
 });
 
@@ -275,7 +285,7 @@ function disapprove_answer(answer_primary_key, btn_clicked){
         type: 'post',
         data: {answerpk: answer_primary_key},
         success : function(new_rating){
-            $(btn_clicked).prev().text(new_rating);
+            $(btn_clicked).parent().prev().text(new_rating);
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -289,7 +299,7 @@ $("#answers").on('click', 'a[id^=approve-answer-]', function(){
     var answer_primary_key = $(this).attr('id').split('-')[2];
     console.log(answer_primary_key); // sanity check
     $(this).children('button').toggleClass('btn-success');
-    $(this).next().next().children('button').removeClass('btn-danger');
+    $(this).parent().next().next().find('button').removeClass('btn-danger');
     approve_answer(answer_primary_key, this);
 });
 
@@ -299,8 +309,7 @@ function approve_answer(answer_primary_key, btn_clicked){
         type: 'post',
         data: {answerpk: answer_primary_key},
         success : function(new_rating){
-            console.log(btn_clicked);
-            $(btn_clicked).next().text(new_rating);
+             $(btn_clicked).parent().next().text(new_rating);
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -317,7 +326,7 @@ $("#answers").on('click', 'a[id^=delete-answer-]', function(){
 });
 
 $("#answers").on('click', 'a[id^=edit-answer-]', function(){
-    form = $(this).siblings('.answer-edit-form');
+    form = $(this).parent().parent().next().find('.answer-edit-form');
     var textarea = form.find('textarea');
     var current_answer = form.prev();
 
@@ -464,3 +473,18 @@ $(function() {
     });
 
 });
+
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};

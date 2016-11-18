@@ -4,7 +4,7 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import View, FormView
 from django.core.urlresolvers import reverse_lazy, reverse
-from .forms import UserForm, ProfileForm, AnswerForm, QuestionForm
+from .forms import UserForm, ProfileForm, AnswerForm, QuestionForm, QuestionCreateForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
@@ -14,6 +14,8 @@ from django.db.models import Count
 import operator
 from django.db.models import Q
 from functools import reduce
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template import loader, Context
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
@@ -38,7 +40,23 @@ class AddFilterTag(View):
         questions = filter_by_search(self.request.session.get('query'), questions)
         questions = sort_questions(self.request.session.get('sort_by'), questions)
 
-        return render(request, self.template_name, {'all_questions': questions})
+        paginator = Paginator(questions, 5)
+
+        page = self.request.POST.get('page')
+
+        try:
+            questions = paginator.page(page)
+        except PageNotAnInteger:
+            questions = paginator.page(1)
+        except EmptyPage:
+            questions = paginator.page(paginator.num_pages)
+
+        c = Context({'all_questions': questions})
+        rendered_questions = loader.get_template(self.template_name).render(c)
+        rendered_paginator = loader.get_template('polls/paginator.html').render(c)
+
+        return HttpResponse(json.dumps({'questions_html': rendered_questions,
+                                        'paginator_html': rendered_paginator}), content_type="application/json")
 
 
 class RemoveFilterTag(View):
@@ -57,7 +75,22 @@ class RemoveFilterTag(View):
         questions = filter_by_search(self.request.session.get('query'), questions)
         questions = sort_questions(self.request.session.get('sort_by'), questions)
 
-        return render(request, self.template_name, {'all_questions': questions})
+        paginator = Paginator(questions, 5)
+
+        page = self.request.POST.get('page')
+        try:
+            questions = paginator.page(page)
+        except PageNotAnInteger:
+            questions = paginator.page(1)
+        except EmptyPage:
+            questions = paginator.page(paginator.num_pages)
+
+        c = Context({'all_questions': questions})
+        rendered_questions = loader.get_template(self.template_name).render(c)
+        rendered_paginator = loader.get_template('polls/paginator.html').render(c)
+
+        return HttpResponse(json.dumps({'questions_html': rendered_questions,
+                                        'paginator_html': rendered_paginator}), content_type="application/json")
 
 
 class QuestionsView(generic.ListView):
@@ -68,6 +101,7 @@ class QuestionsView(generic.ListView):
     def get_context_data(self, **kwargs):
         query = self.request.GET.get('q', '').strip()
         self.request.session['query'] = query
+        self.request.session['sort_by'] = self.request.session.get('sort_by', 'date_down')
         context = super(QuestionsView, self).get_context_data(**kwargs)
         context['active_tags'] = []
         active_tags_ids = self.request.session.get('tags', [])
@@ -75,16 +109,24 @@ class QuestionsView(generic.ListView):
         for tag_id in reversed(active_tags_ids):
             context.get('active_tags').append(Tag.objects.get(id=tag_id))
 
-        tagged_questions = filter_by_tags(active_tags_ids, self.model.objects.all())
+        questions = filter_by_tags(active_tags_ids, self.model.objects.all())
+        questions = filter_by_search(query, questions)
+        questions = sort_questions(self.request.session.get('sort_by'), questions)
 
-        context['title'] = query if query else "All questions"
+        paginator = Paginator(questions, 5)
 
-        all_questions = filter_by_search(query, tagged_questions)
-
-        self.request.session['sort_by'] = self.request.session.get('sort_by', 'date_down')
-        context['all_questions'] = sort_questions(self.request.session.get('sort_by'), all_questions)
+        page = self.request.GET.get('page')
+        try:
+            questions = paginator.page(page)
+        except PageNotAnInteger:
+            questions = paginator.page(1)
+        except EmptyPage:
+            questions = paginator.page(paginator.num_pages)
 
         context['tags'] = Tag.objects.all()
+        context['all_questions'] = questions
+        context['title'] = query if query else "All questions"
+
         return context
 
 
@@ -97,6 +139,16 @@ class QuestionsSort(generic.ListView):
         questions = filter_by_tags(self.request.session.get('tags'), Question.objects.all())
         questions = filter_by_search(self.request.session.get('query'), questions)
         questions = sort_questions(new_sort, questions)
+
+        paginator = Paginator(questions, 5)
+
+        page = self.request.POST.get('page')
+        try:
+            questions = paginator.page(page)
+        except PageNotAnInteger:
+            questions = paginator.page(1)
+        except EmptyPage:
+            questions = paginator.page(paginator.num_pages)
 
         request.session['sort_by'] = new_sort
         return render(request, self.template_name, {'all_questions': questions})
@@ -161,7 +213,7 @@ class UserDetail(generic.DeleteView):
 
 class QuestionCreate(LoginRequiredMixin, CreateView):
     model = Question
-    fields = ['header', 'content', 'tags']
+    form_class = QuestionCreateForm
 
     def form_valid(self, form):
         form.instance.author = self.request.user

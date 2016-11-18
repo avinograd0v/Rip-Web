@@ -1,15 +1,15 @@
-<div class="pagination">
+<div id="pagination" class="pagination">
     <span class="step-links">
-        {% if contacts.has_previous %}
-            <a href="?page={{ contacts.previous_page_number }}">previous</a>
+        {% if all_questions.has_previous %}
+            <a href="?page={{ all_questions.previous_page_number }}">previous</a>
         {% endif %}
 
         <span class="current">
-            Page {{ contacts.number }} of {{ contacts.paginator.num_pages }}.
+            Page {{ all_questions.number }} of {{ all_questions.paginator.num_pages }}.
         </span>
 
-        {% if contacts.has_next %}
-            <a href="?page={{ contacts.next_page_number }}">next</a>
+        {% if all_questions.has_next %}
+            <a href="?page={{ all_questions.next_page_number }}">next</a>
         {% endif %}
     </span>
 </div>

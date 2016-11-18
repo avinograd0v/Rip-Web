@@ -2,6 +2,9 @@
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
+        <div class="row">
+        <div class="container panel panel-default col-md-8 col-md-offset-2">
+            <div class="panel-body">
     <h3>Sign in</h3>
     <form class="form-horizontal" action="" method="post">
         {% csrf_token %}
@@ -16,4 +19,7 @@
         </div>
     </form>
     <p><a href="#">Lost password?</a></p>
+            </div>
+        </div>
+        </div>
 {% endblock %}

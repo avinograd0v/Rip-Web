@@ -2,88 +2,125 @@
 {% block title %}{{ question.header }}{% endblock %}
 
 {% block content %}
-    <div class="panel panel-default">
+    <div class="container panel panel-default col-md-8 col-md-offset-2">
         <div class="panel-body">
-    <div id="question-{{ question.id }}" class="question-container">
-         {% if question.author == request.user %}
-         <form action="{% url 'polls:delete-question' question.id %}" method="post" style="display: inline;">
-            {% csrf_token %}
-            <input type="hidden" name="question_id" value="{{ question.id }}" >
-            <button type="submit" class="btn btn-default btn-sm" title="Delete question">
-                <span class="glyphicon glyphicon-trash"></span>
-            </button>
-        </form>
-        <a id="edit-question-{{ question.id }}">
-            <button class="btn btn-default btn-sm" title="Edit question">
-                <span class="glyphicon glyphicon-wrench"></span>
-            </button>
-        </a>
-        {% endif %}
-        <div class="author-avatar" style="width: 100px; height: 100px;">
-            <img class="img-responsive img-circle" src="{{ question.author.profile.avatar.url }}">
-        </div>
-        <div class="user-nickname">
-            <a href="{% url 'polls:user-profile' question.author.id %}">
-                {{ question.author.username }}
-            </a>
-        </div>
-        <div class="rating-container">
-            <a id="approve-question-{{ question.id }}">
-            <button type="button"  class="btn btn-default thumbs-up
-                    {% if request.user in question.approved_by.all %} btn-success {% endif %}">
-                <i class="glyphicon glyphicon-thumbs-up"></i>
-            </button>
-            </a>
-            <div class="rating">
-                {{ question.rating }}
-            </div>
-            <a id="disapprove-question-{{ question.id }}">
-                <button type="button" class="btn btn-default thumbs-down
-                    {% if request.user in question.disapproved_by.all %} btn-danger {% endif %}">
-                    <i class="glyphicon glyphicon-thumbs-down"></i>
-                </button>
-            </a>
-        </div>
-        <div class="question-text">
-            {{ question.header }}
-        </div>
-        <div class="question-details">
-            {{ question.content }}
-        </div>
-        {% if question.author == request.user %}
-        <form hidden class="form-horizontal question-edit-form" action="" method="post">
-            {% csrf_token %}
-            {% include 'polls/form-template.html' with form=edit_question_form %}
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <button type="submit" class="btn btn-success">Edit</button>
+            <div class="row">
+                <div id="question-{{ question.id }}" class="detailed-question-container center-block panel panel-default row">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="author-avatar center-block"
+                                     style="background-image: url({{ question.author.profile.avatar.url }});">
+                                </div>
+                                <div class="user-nickname text-center">
+                                    <a href="{% url 'polls:user-profile' question.author.id %}">
+                                        {{ question.author.username }}
+                                    </a>
+                                </div>
+                                <div class="rating-container row">
+                                    <div class="col-md-3">
+                                        <a id="approve-question-{{ question.id }}">
+                                            <button type="button" class="btn btn-default thumbs-up
+                {% if request.user in question.approved_by.all %} btn-success {% endif %}">
+                                                <i class="glyphicon glyphicon-thumbs-up"></i>
+                                            </button>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-offset-2 col-md-1">
+                                        <div class="rating text-justify">
+                                            {{ question.rating }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <a id="disapprove-question-{{ question.id }}">
+                                            <button type="button" class="btn btn-default thumbs-down
+                {% if request.user in question.disapproved_by.all %} btn-danger {% endif %}">
+                                                <i class="glyphicon glyphicon-thumbs-down"></i>
+                                            </button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row">
+                                    <div class="col-md-3 edit-container">
+                                        {% if question.author == request.user %}
+                                            <form action="{% url 'polls:delete-question' question.id %}" method="post"
+                                                  style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="question_id" value="{{ question.id }}">
+                                                <button type="submit" class="btn btn-default btn-sm"
+                                                        title="Delete question">
+                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                </button>
+                                            </form>
+                                            <a id="edit-question-{{ question.id }}">
+                                                <button class="btn btn-default btn-sm" title="Edit question">
+                                                    <span class="glyphicon glyphicon-wrench"></span>
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="question-date text-right text-muted">
+                                            <time>{{ question.publicationDate }}</time>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="question-text">
+                                            <h4>{{ question.header }}</h4>
+                                        </div>
+                                        <div class="question-details">
+                                            {{ question.content }}
+                                        </div>
+                                        {% if question.author == request.user %}
+                                            <form hidden class="form-horizontal question-edit-form" action=""
+                                                  method="post">
+                                                {% csrf_token %}
+                                                {% include 'polls/form-template.html' with form=edit_question_form %}
+                                                <div class="form-group">
+                                                    <div class="col-sm-offset-2 col-sm-10">
+                                                        <button type="submit" class="btn btn-success">Edit</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel-footer">
+                                <div class="question-tags-container">
+                                    {% for tags in question.tags.all %}
+                                        <a href="{% url 'polls:questions' tags.word|slugify %}">{{ tags.word }}
+                                            &nbsp</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </form>
-        {% endif %}
-        <div class="tags-container">
-            {% for tags in question.tags.all %}
-                <a href="{% url 'polls:questions' tags.word|slugify %}">{{ tags.word }}</a>
-            {% endfor %}
-        </div>
-        <div class="question-date">
-            <time>{{ question.publicationDate }}</time>
-        </div>
-    </div>
-    <div id="answers">
-        {% if not question.answer_set.all %}
-            Пока еще нет ответов
-        {% else %}
-            {% for answer in question.answer_set.all|dictsortreversed:"publicationDate"|dictsortreversed:"isRight" %}
-                {% include 'polls/answer_template.html' %}
-            {% endfor %}
-        {% endif %}
-    </div>
-    {% if request.user.is_authenticated %}
-        {% include 'polls/answer_form.html' with header="Add new answer" form=add_answer_form id="answer-add-form" %}
-    {% else %}
-        Log in to answer!
-    {% endif %}
+
+            <div id="answers">
+                {% if not question.answer_set.all %}
+                    Пока еще нет ответов
+                {% else %}
+                    {% for answer in question.answer_set.all|dictsortreversed:"publicationDate"|dictsortreversed:"isRight" %}
+                        {% include 'polls/answer_template.html' %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% if request.user.is_authenticated %}
+                {% include 'polls/answer_form.html' with header="Your answer" form=add_answer_form id="answer-add-form" %}
+            {% else %}
+                Log in to answer!
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,49 +1,75 @@
 {% for question in all_questions %}
-<div id="question-{{ question.id }}" class="question-container center-block">
-    <div class="author-avatar" style="width: 100px; height: 100px;">
-        <img class="img-circle img-responsive" src="{{ question.author.profile.avatar.url }}">
-    </div>
-    <div class="user-nickname">
-        <a href="{% url 'polls:user-profile' question.author.id %}">
-            {{ question.author.username }}
-        </a>
-    </div>
-    <div class="rating-container">
-        <a id="approve-question-{{ question.id }}">
-            <button type="button"  class="btn btn-default thumbs-up
+    <div id="question-{{ question.id }}" class="question-container center-block panel panel-default row">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="author-avatar center-block"
+                         style="background-image: url({{ question.author.profile.avatar.url }});">
+                    </div>
+                    <div class="user-nickname text-center">
+                        <a href="{% url 'polls:user-profile' question.author.id %}">
+                            {{ question.author.username }}
+                        </a>
+                    </div>
+                    <div class="rating-container row">
+                        <div class="col-md-3">
+                            <a id="approve-question-{{ question.id }}">
+                                <button type="button" class="btn btn-default thumbs-up
                 {% if request.user in question.approved_by.all %} btn-success {% endif %}">
-                <i class="glyphicon glyphicon-thumbs-up"></i>
-            </button>
-        </a>
-        <div class="rating">
-            {{ question.rating }}
-        </div>
-        <a id="disapprove-question-{{ question.id }}">
-            <button type="button" class="btn btn-default thumbs-down
+                                    <i class="glyphicon glyphicon-thumbs-up"></i>
+                                </button>
+                            </a>
+                        </div>
+                        <div class="col-md-offset-2 col-md-1">
+                            <div class="rating text-justify">
+                                {{ question.rating }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <a id="disapprove-question-{{ question.id }}">
+                                <button type="button" class="btn btn-default thumbs-down
                 {% if request.user in question.disapproved_by.all %} btn-danger {% endif %}">
-                <i class="glyphicon glyphicon-thumbs-down"></i>
-            </button>
-        </a>
+                                    <i class="glyphicon glyphicon-thumbs-down"></i>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="question-date text-right text-muted">
+                        <time>{{ question.publicationDate }}</time>
+                    </div>
+                    <div class="question-text">
+                        <h4>{{ question.header }}</h4>
+                    </div>
+                    <div class="question-details">
+                        {{ question.content|truncatechars:200 }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-offset-3 col-md-3">
+                    <div class="has-answers">
+                        Has <strong>{{ question.answer_set.all.count }}</strong> answers
+                    </div>
+                </div>
+                <div class="col-md-offset-4 col-md-2">
+                    <div class="show-more">
+                        <a href="{% url 'polls:question' question.id %}">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel-footer">
+                    <div class="question-tags-container">
+                        {% for tags in question.tags.all %}
+                            <a href="{% url 'polls:questions' tags.word|slugify %}">{{ tags.word }} &nbsp</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="question-text">
-        {{ question.header }}
-    </div>
-    <div class="question-details">
-        {{ question.content|truncatechars:300 }}
-    </div>
-    <div class="question-tags-container">
-        {% for tags in question.tags.all %}
-            <a href="{% url 'polls:questions' tags.word|slugify %}">{{ tags.word }}</a>
-        {% endfor %}
-    </div>
-    <div class="question-date">
-        <time>{{ question.publicationDate }}</time>
-    </div>
-    <div class="has-answers">
-        Has <strong>{{ question.answer_set.all.count }}</strong> answers
-    </div>
-    <div class="show-more">
-        <a href="{% url 'polls:question' question.id %}">Подробнее</a>
-    </div>
-</div>
 {% endfor %}

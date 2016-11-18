@@ -40,3 +40,16 @@ class AnswerForm(forms.ModelForm):
                 attrs={'id': 'answer-text', 'required': True, 'placeholder': 'Answer...'}
             ),
         }
+
+
+class QuestionCreateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(QuestionCreateForm, self).__init__(*args, **kwargs)
+        self.fields['tags'].widget.attrs = {'class': 'selectpicker',
+                                            'data-live-search': 'true',
+                                            'data-live-search-normalize': 'true',
+                                            'data-live-search-placeholder': 'Search tags...'}
+
+    class Meta:
+        model = Question
+        fields = ['header', 'content', 'tags']
