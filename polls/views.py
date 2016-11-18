@@ -10,6 +10,10 @@ from django.views.generic.detail import SingleObjectMixin
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
 from .models import User, Question, Answer, Tag
 import json
+from django.db.models import Count
+import operator
+from django.db.models import Q
+from functools import reduce
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
@@ -19,8 +23,9 @@ def index(request):
 
 
 class AddFilterTag(View):
-    def post(self, request, *args, **kwargs):
+    template_name = 'polls/question_template.html'
 
+    def post(self, request, *args, **kwargs):
         tag_pk = int(QueryDict(request.body).get('tagpk'))
         tags = request.session.get('tags', [])
 
@@ -28,12 +33,18 @@ class AddFilterTag(View):
             tags.append(tag_pk)
 
         request.session['tags'] = tags
-        return HttpResponse(tag_pk, content_type='text/plain')
+
+        questions = filter_by_tags(self.request.session.get('tags'), Question.objects.all())
+        questions = filter_by_search(self.request.session.get('query'), questions)
+        questions = sort_questions(self.request.session.get('sort_by'), questions)
+
+        return render(request, self.template_name, {'all_questions': questions})
 
 
 class RemoveFilterTag(View):
-    def post(self, request, *args, **kwargs):
+    template_name = 'polls/question_template.html'
 
+    def post(self, request, *args, **kwargs):
         tag_pk = int(QueryDict(request.body).get('tagpk'))
         tags = request.session.get('tags', [])
 
@@ -41,7 +52,12 @@ class RemoveFilterTag(View):
             tags.remove(tag_pk)
 
         request.session['tags'] = tags
-        return HttpResponse(tag_pk, content_type='text/plain')
+
+        questions = filter_by_tags(self.request.session.get('tags'), Question.objects.all())
+        questions = filter_by_search(self.request.session.get('query'), questions)
+        questions = sort_questions(self.request.session.get('sort_by'), questions)
+
+        return render(request, self.template_name, {'all_questions': questions})
 
 
 class QuestionsView(generic.ListView):
@@ -50,35 +66,81 @@ class QuestionsView(generic.ListView):
     context_object_name = "all_questions"
 
     def get_context_data(self, **kwargs):
-        query = self.request.GET.get('q', False)
+        query = self.request.GET.get('q', '').strip()
+        self.request.session['query'] = query
         context = super(QuestionsView, self).get_context_data(**kwargs)
-
-        if query:
-            context['title'] = query
-            context['all_questions'] = self.model.objects.filter(header__icontains=query).order_by('-publicationDate')
-        else:
-            context['title'] = "All questions"
-            context['all_questions'] = self.model.objects.all().order_by('-publicationDate')
-
         context['active_tags'] = []
         active_tags_ids = self.request.session.get('tags', [])
 
-        self.request.session['sort_by'] = 'rating_down'
-        #sort_by = self.request.session.get('sort_by', default='rating_down')
-        #print(self.request.session.get('sort_by'))
         for tag_id in reversed(active_tags_ids):
             context.get('active_tags').append(Tag.objects.get(id=tag_id))
 
+        tagged_questions = filter_by_tags(active_tags_ids, self.model.objects.all())
+
+        context['title'] = query if query else "All questions"
+
+        all_questions = filter_by_search(query, tagged_questions)
+
+        self.request.session['sort_by'] = self.request.session.get('sort_by', 'date_down')
+        context['all_questions'] = sort_questions(self.request.session.get('sort_by'), all_questions)
+
         context['tags'] = Tag.objects.all()
-        print(self.request.POST.get('sortby'))
         return context
 
 
 class QuestionsSort(generic.ListView):
     model = Question
+    template_name = 'polls/question_template.html'
 
     def post(self, request, *args, **kwargs):
-        print(request.POST.get('sortby'))
+        new_sort = request.POST.get('sortby')
+        questions = filter_by_tags(self.request.session.get('tags'), Question.objects.all())
+        questions = filter_by_search(self.request.session.get('query'), questions)
+        questions = sort_questions(new_sort, questions)
+
+        request.session['sort_by'] = new_sort
+        return render(request, self.template_name, {'all_questions': questions})
+
+
+def sort_questions(new_sort, queryset):
+    questions = []
+
+    if new_sort == 'date_down':
+        questions = queryset.order_by('-publicationDate')
+    elif new_sort == 'date_up':
+        questions = queryset.order_by('publicationDate')
+    elif new_sort == 'rating_down':
+        questions = queryset.order_by('-rating')
+    elif new_sort == 'rating_up':
+        questions = queryset.order_by('rating')
+
+    return questions
+
+
+def filter_by_tags(active_tags_ids, queryset):
+    if len(active_tags_ids):
+        active_tags = []
+
+        for tag_id in reversed(active_tags_ids):
+            active_tags.append(Tag.objects.get(id=tag_id))
+
+        questions = queryset.filter(tags__in=active_tags)\
+                                                 .annotate(num_tags=Count('tags'))\
+                                                 .filter(num_tags=len(active_tags))
+    else:
+        questions = queryset
+    return questions
+
+
+def filter_by_search(query, queryset):
+    if query:
+        query_list = query.split()
+        questions = queryset.filter(reduce(operator.and_, (Q(header__icontains=q) for q in query_list)) |
+                                    reduce(operator.and_, (Q(content__icontains=q) for q in query_list)))
+    else:
+        questions = queryset
+
+    return questions
 
 
 class QuestionDetail(generic.DetailView):

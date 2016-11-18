@@ -3,6 +3,8 @@ $('#sort-by-date').on('click', function(){
         $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
     }else {
         $(this).next().removeClass('mark');
+        $(this).next().children('i').removeClass('glyphicon-menu-up').addClass('glyphicon-menu-down');
+        console.log($(this).next().children('i'));
         $(this).addClass('mark');
     }
 
@@ -18,6 +20,7 @@ $('#sort-by-rating').on('click', function(){
         $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
     }else {
         $(this).prev().removeClass('mark');
+        $(this).prev().children('i').removeClass('glyphicon-menu-up').addClass('glyphicon-menu-down');
         $(this).addClass('mark');
     }
 
@@ -36,6 +39,7 @@ function sort_answers(direction, criterion) {
             sortby: criterion + '_' + direction
         },
         success: function(html) {
+            $("#all-questions").html("");
             $(html).hide().prependTo("#all-questions").fadeIn();
         },
         error : function(xhr, errmsg, err) {
@@ -71,8 +75,15 @@ function remove_tag(tag_primary_key, tag_name){
         data: {
             tagpk : tag_primary_key
         },
-        success : function (tag_id) {
-            $('#add-tag-' + tag_id).fadeIn();
+        success : function (questions) {
+            $('#add-tag-' + tag_primary_key).fadeIn();
+
+            $("#all-questions").html("");
+            if(questions == ""){
+                $("#all-questions").text("По вашему запросу ничего не найдено").fadeIn();
+            }else {
+                $(questions).hide().prependTo("#all-questions").fadeIn();
+            }
         },
         error : function(xhr, errmsg, err) {
             // Show an error
@@ -103,11 +114,18 @@ function add_tag(tag_primary_key, tag_name){
         data: {
             tagpk : tag_primary_key
         },
-        success : function (tag_id) {
+        success : function (questions) {
             var html = "<a id='remove-tag-" + tag_primary_key + "'><button class='btn btn-default btn-success btn-sm'>" +
                     tag_name + "<i class='glyphicon glyphicon-remove'></i></button></a>";
 
             $(html).hide().prependTo("#active-tags-container").fadeIn();
+
+            $("#all-questions").html("");
+            if(questions == ""){
+                $("#all-questions").text("По вашему запросу ничего не найдено").fadeIn();
+            }else {
+                $(questions).hide().prependTo("#all-questions").fadeIn();
+            }
         },
         error : function(xhr, errmsg, err) {
             // Show an error
