@@ -1,5 +1,5 @@
 {% if all_questions.has_other_pages %}
-    <ul class="pagination">
+    <ul id="pagination" class="pagination">
         {% if all_questions.has_previous %}
             <li><a href="?page={{ all_questions.previous_page_number }}">&laquo;</a></li>
         {% else %}

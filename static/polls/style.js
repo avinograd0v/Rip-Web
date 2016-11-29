@@ -23,7 +23,6 @@ input.onkeydown = function(event){
 	mainContainer.classList.remove('is-center');
     if (event.keyCode === 13){
     	optionsContainer.classList.add("options-opened");
-    	searchButton.focus();
     }
 };
 

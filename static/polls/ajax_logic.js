@@ -3,7 +3,7 @@ $('#sort-by-date').on('click', function(e){
 
     if ($(this).hasClass('mark')){
         $(this).children('i').toggleClass('glyphicon-menu-down').toggleClass('glyphicon-menu-up');
-    }else {
+    } else {
         $(this).next().removeClass('mark');
         $(this).next().children('i').removeClass('glyphicon-menu-up').addClass('glyphicon-menu-down');
         console.log($(this).next().children('i'));

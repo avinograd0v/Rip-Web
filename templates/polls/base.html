@@ -45,7 +45,7 @@
           </div>
           {% else %}
           <div class="col-md-1 col-md-offset-9">
-              <a href="{% url 'polls:user-login' %}" class="login-link">Войти</a>
+              <a href="{% url 'polls:user-login' %}?next={{request.path}}" class="login-link">Войти</a>
           </div>
           <div class="col-md-1">
               <a href="{% url 'polls:signup' %}">Зарегистрироваться</a>

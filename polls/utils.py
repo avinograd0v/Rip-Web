@@ -5,7 +5,6 @@ from functools import reduce
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Tag
 
-
 def paginate(questions, request):
     per_page = 5
 
