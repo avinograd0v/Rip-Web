@@ -1,3 +1,15 @@
+$('#remove-all-tags').on('click', function(e){
+    e.preventDefault();
+
+    var self = this;
+    $('#active-tags-container a').each(function (index) {
+        if(this != self) {
+            $(this).trigger('click');
+        }
+    })
+});
+
+
 $('#sort-by-date').on('click', function(e){
     e.preventDefault();
 
@@ -68,7 +80,10 @@ $('#active-tags-container').on('click', 'a[id^=remove-tag-]', function(){
 
     remove_tag(tag_primary_key);
 
-    console.log($("#active-tags-container:only-child"));
+    if($("#remove-all-tags").siblings().size() === 1){
+         $("#remove-all-tags").fadeOut(300);
+    }
+
     $(this).fadeOut(300, function () {$(this).remove();});
 });
 
@@ -198,7 +213,7 @@ function update_question(question_primary_key, new_content, new_header, current_
     });
 }
 
-$('div[id^=question-]').on('click', 'a[id^=approve-question-]', function(){
+$('#main-c-c').on('click', 'a[id^=approve-question-]', function(){
     var question_primary_key = $(this).attr('id').split('-')[2];
     console.log(question_primary_key); // sanity check
     $(this).children('button').toggleClass('btn-success');
@@ -223,7 +238,7 @@ function approve_question(question_primary_key,  btn_clicked) {
     })
 }
 
-$('div[id^=question-]').on('click', 'a[id^=disapprove-question-]', function(){
+$('#main-c-c').on('click', 'a[id^=disapprove-question-]', function(){
     var question_primary_key = $(this).attr('id').split('-')[2];
     console.log(question_primary_key); // sanity check
     $(this).children('button').toggleClass('btn-danger');
@@ -374,8 +389,10 @@ function delete_post(answer_primary_key){
             data : { answerpk : answer_primary_key }, // data sent with the delete request
             success : function(json) {
                 // hide the post
-              $('#answer-' + answer_primary_key).slideUp(); // hide the post on success
-              console.log("post deletion successful");
+              $('#answer-' + answer_primary_key).slideUp(function () {
+                  if($('#answers').children().size() == 1)
+                      $('#answers').text("Пока еще нет ответов");
+              }); // hide the post on success
             },
 
             error : function(xhr, errmsg, err) {
@@ -405,6 +422,9 @@ function add_answer() {
         success : function(html) {
             $('#answer-add-form #answer-text').val(''); // remove the value from the input
             console.log(html); // log the returned json to the console
+            if($('#answers').text())
+                $('#answers').text("");
+
             $(html).hide().prependTo("#answers").slideDown();
             console.log("success"); // another sanity check
         },

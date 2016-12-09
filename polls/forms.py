@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from .models import Profile, Answer, Question
 from django import forms
+from django.contrib.auth.forms import UserChangeForm
 
 
 class UserForm(forms.ModelForm):
@@ -53,3 +54,12 @@ class QuestionCreateForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ['header', 'content', 'tags']
+
+
+class MyUserChangeForm(UserChangeForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+

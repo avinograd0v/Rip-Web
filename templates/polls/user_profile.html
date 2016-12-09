@@ -40,11 +40,10 @@
                                         No questions asked
                                     {% endif %}
                                     <ul class="list-group">
-                                        {% for question in user.question_set.all %}
+                                        {% for question in user.question_set.all|dictsortreversed:"rating" %}
                                             <li class="list-group-item">
                                                 <span class="badge">{{ question.rating }}</span>
                                                 <a href="{% url 'polls:question' question.id %}">{{ question.header }}</a>
-
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -57,7 +56,7 @@
                                         No answers made
                                     {% endif %}
                                     <ul class="list-group">
-                                        {% for answer in user.answer_set.all %}
+                                        {% for answer in user.answer_set.all|dictsortreversed:"rating"|dictsortreversed:"isRight" %}
                                             <li class="list-group-item">
                                                 <span class="badge">{{ answer.rating }}
                                                     {% if answer.isRight %}

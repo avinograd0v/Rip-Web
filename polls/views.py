@@ -4,7 +4,7 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import View, FormView
 from django.core.urlresolvers import reverse_lazy, reverse
-from .forms import UserForm, ProfileForm, AnswerForm, QuestionForm, QuestionCreateForm
+from .forms import UserForm, ProfileForm, AnswerForm, QuestionForm, QuestionCreateForm, MyUserChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.http import HttpResponseRedirect, HttpResponse, QueryDict
@@ -204,11 +204,35 @@ class QuestionUpdate(LoginRequiredMixin, View):
         )
 
 
-class UserUpdate(LoginRequiredMixin, UpdateView):
-    model = User
+class UserUpdate(LoginRequiredMixin, View):
+    user_class = MyUserChangeForm
+    profile_class = ProfileForm
+    template_name = 'polls/edit_profile_form.html'
 
-    fields = ['username', 'email', 'password']
-    template_name = "polls/edit_profile_form.html"
+    # display blank form
+    def get(self, request, *args, **kwargs):
+        user_form = self.user_class(instance=request.user)
+        profile_form = self.profile_class(None)
+        return render(request, self.template_name, {
+            'user_form': user_form,
+            'profile_form': profile_form,
+        })
+
+    # process form data
+    def post(self, request, *args, **kwargs):
+        user_form = self.user_class(request.POST, instance=request.user)
+        profile_form = self.profile_class(request.POST, request.FILES)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            if profile_form.cleaned_data['avatar'] != "../media/default-user.png":
+                request.user.profile.avatar = profile_form.cleaned_data['avatar']
+
+            user_form.save()
+
+        return render(request, self.template_name, {
+            'user_form': user_form,
+            'profile_form': profile_form,
+        })
 
 
 class QuestionDelete(LoginRequiredMixin, DeleteView):

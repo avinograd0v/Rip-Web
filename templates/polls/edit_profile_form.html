@@ -2,21 +2,30 @@
 {% block title %} Profile editing {% endblock %}
 
 {% block content %}
-    <div class="panel panel-default">
+    <div class="container panel panel-default col-md-8 col-md-offset-2 user-edit-container">
         <div class="panel-body">
-             <h3>Edit your profile</h3>
-             {% if error_message %}
-                  <p><strong>{{ error_message }}</strong></p>
-             {% endif %}
-             <form class="form-horizontal" action="" method="post">
-             {% csrf_token %}
-             {% include 'polls/form-template.html' %}
-                 <div class="form-group">
-                 <div class="col-sm-offset-2 col-sm-10">
-                 <button type="submit" class="btn btn-success">Save</button>
+            <div class="row">
+               <div class="col-md-9">
+                <h3>Edit your profile</h3>
+                {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                {% endif %}
+                <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% include 'polls/form-template.html' with form=user_form %}
+                    {% include 'polls/form-template.html' with form=profile_form %}
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                    </div>
+                </form>
+               </div>
+               <div class="col-md-3">
+                        <div class="user-avatar" style="background-image: url({{ user.profile.avatar.url }});"></div>
+                    </div>
+               </div>
             </div>
         </div>
-    </form>
     </div>
- </div>
 {% endblock %}
