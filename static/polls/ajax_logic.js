@@ -15,8 +15,8 @@ $('#maybe-tags').on('click', 'li', function (e) {
     console.log(selectedTags);
 });
 
-$('#id_tags').on('keypress', function(e){
-    if(e.charCode === 8){
+$('#id_tags').on('keyup', function(e){
+    if(e.keyCode === 8){
         selectedTags[selectedTags.length - 1] = selectedTags[selectedTags.length - 1].slice(0, -1);
         if(selectedTags[selectedTags.length - 1] === ""){
             maybeTags = {};
@@ -24,11 +24,11 @@ $('#id_tags').on('keypress', function(e){
         }
     }
     if($.isEmptyObject(maybeTags)){
-        selectedTags.push(String.fromCharCode(e.charCode));
-        get_maybe_tags(String.fromCharCode(e.charCode));
+        selectedTags.push(String.fromCharCode(e.keyCode));
+        get_maybe_tags(String.fromCharCode(e.keyCode));
     } else {
-        if(/^[a-z0-9]+$/i.test(String.fromCharCode(e.charCode))) {
-            selectedTags[selectedTags.length - 1] += String.fromCharCode(e.charCode);
+        if(/^[a-z0-9]+$/i.test(String.fromCharCode(e.keyCode))) {
+            selectedTags[selectedTags.length - 1] += String.fromCharCode(e.keyCode);
         }
         $('#maybe-tags').html("");
         $.each(maybeTags, function (tag, count) {
@@ -41,7 +41,7 @@ $('#id_tags').on('keypress', function(e){
     }
 
     console.log(selectedTags);
-    if(e.charCode == 188){
+    if(e.keyCode == 188){
         selectedTags[selectedTags.length - 1] = selectedTags[selectedTags.length - 1].toLowerCase();
         $('#id_tags').val($('#id_tags').val() + ' ');
         $('#maybe-tags').html("");

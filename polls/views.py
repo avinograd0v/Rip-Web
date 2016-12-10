@@ -19,6 +19,7 @@ from django.template import loader, Context
 from .utils import paginate, sort_questions, filter_by_search, filter_by_tags
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from collections import OrderedDict
 
 
 def index(request):
@@ -176,7 +177,13 @@ class QuestionCreate(LoginRequiredMixin, CreateView):
     form_class = QuestionCreateForm
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        self.object = form.save(commit=False)
+        tags_list = list(set([x.strip() for x in form.data['tags'].split(',')]))
+        self.object.author = self.request.user
+        self.object.save()
+        for tag in tags_list:
+            tag, dummy = Tag.objects.get_or_create(word=tag)
+            self.object.tags.add(tag)
         return super(QuestionCreate, self).form_valid(form)
 
 
@@ -187,9 +194,7 @@ class GetMaybeTags(LoginRequiredMixin, View):
         tags = self.model.objects.filter(word__icontains=request.POST.get('char'))\
             .annotate(count=Count("question")).order_by('-count')
 
-        tags_dict = {}
-        for tag in tags:
-            tags_dict[tag.word] = tag.question_set.all().count()
+        tags_dict = OrderedDict((tag.word, tag.question_set.all().count()) for tag in tags)
 
         return HttpResponse(
             json.dumps(tags_dict),
@@ -243,6 +248,9 @@ class UserUpdate(LoginRequiredMixin, View):
         if user_form.is_valid() and profile_form.is_valid():
             if profile_form.cleaned_data['avatar'] != "../media/default-user.png":
                 request.user.profile.avatar = profile_form.cleaned_data['avatar']
+
+            if user_form.cleaned_data['password'] != "":
+                request.user.set_password(user_form.cleaned_data['password'])
 
             user_form.save()
 

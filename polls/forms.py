@@ -44,7 +44,8 @@ class AnswerForm(forms.ModelForm):
 
 
 class QuestionCreateForm(forms.ModelForm):
-    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter tags, divided by commas'}))
+    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter tags, divided by commas',
+                                                         'autocomplete': 'off'}))
 
     def __init__(self, *args, **kwargs):
         super(QuestionCreateForm, self).__init__(*args, **kwargs)
@@ -55,9 +56,14 @@ class QuestionCreateForm(forms.ModelForm):
 
 
 class MyUserChangeForm(UserChangeForm):
-    password = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(widget=forms.PasswordInput(), required=False)
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        return password
 
     class Meta:
         model = User
         fields = ('username', 'email')
+
 
