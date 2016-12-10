@@ -1,3 +1,83 @@
+var maybeTags = {};
+var selectedTags = [];
+
+$('#maybe-tags').on('click', 'li', function (e) {
+    var allValue = $('#id_tags').val();
+    var trimmedValue = allValue.slice(0, allValue.lastIndexOf(',') + 1);
+    if(trimmedValue !== ""){
+        trimmedValue = trimmedValue + " ";
+    }
+    $('#id_tags').val(trimmedValue + $(e.target).contents().get(1).nodeValue + ', ');
+    $('#id_tags').focus();
+    $('#maybe-tags').html("");
+    maybeTags = {};
+    selectedTags[selectedTags.length - 1] = $(e.target).contents().get(1).nodeValue;
+    console.log(selectedTags);
+});
+
+$('#id_tags').on('keypress', function(e){
+    if(e.charCode === 8){
+        selectedTags[selectedTags.length - 1] = selectedTags[selectedTags.length - 1].slice(0, -1);
+        if(selectedTags[selectedTags.length - 1] === ""){
+            maybeTags = {};
+            $('#maybe-tags').html("");
+        }
+    }
+    if($.isEmptyObject(maybeTags)){
+        selectedTags.push(String.fromCharCode(e.charCode));
+        get_maybe_tags(String.fromCharCode(e.charCode));
+    } else {
+        if(/^[a-z0-9]+$/i.test(String.fromCharCode(e.charCode))) {
+            selectedTags[selectedTags.length - 1] += String.fromCharCode(e.charCode);
+        }
+        $('#maybe-tags').html("");
+        $.each(maybeTags, function (tag, count) {
+            if(tag.toLowerCase().includes(selectedTags[selectedTags.length - 1].toLowerCase())) {
+                $('#maybe-tags').append("<li class='list-group-item tag-item'><span class='badge' " +
+                    "title='Number of questions with this tag'>"
+                    + count + "</span>" + tag + "</li>");
+            }
+        })
+    }
+
+    console.log(selectedTags);
+    if(e.charCode == 188){
+        selectedTags[selectedTags.length - 1] = selectedTags[selectedTags.length - 1].toLowerCase();
+        $('#id_tags').val($('#id_tags').val() + ' ');
+        $('#maybe-tags').html("");
+        maybeTags = {};
+    }
+});
+
+function get_maybe_tags(char) {
+    $.ajax({
+        url: '/polls/get_maybe_tags/',
+        type: 'POST',
+        data: {
+            char: char
+        },
+        success: function(json) {
+            maybeTags = json;
+
+            selectedTags.forEach(function (tag) {
+                delete maybeTags[tag];
+            });
+
+            $.each(maybeTags, function (tag, count) {
+                $('#maybe-tags').append("<li class='list-group-item tag-item'><span class='badge'" +
+                    " title='Number of questions with this tag'>"
+                    + count + "</span>" + tag + "</li>");
+            })
+        },
+        error : function(xhr, errmsg, err) {
+            // Show an error
+            $('#results').html("<div class='alert-box alert radius' data-alert>"+ "Oops! We have encountered an error. <a href='#' class='close'>&times;</a></div>"); // add error to the dom
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    })
+}
+
+
 $('#remove-all-tags').on('click', function(e){
     e.preventDefault();
 

@@ -44,16 +44,14 @@ class AnswerForm(forms.ModelForm):
 
 
 class QuestionCreateForm(forms.ModelForm):
+    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter tags, divided by commas'}))
+
     def __init__(self, *args, **kwargs):
         super(QuestionCreateForm, self).__init__(*args, **kwargs)
-        self.fields['tags'].widget.attrs = {'class': 'selectpicker',
-                                            'data-live-search': 'true',
-                                            'data-live-search-normalize': 'true',
-                                            'data-live-search-placeholder': 'Search tags...'}
 
     class Meta:
         model = Question
-        fields = ['header', 'content', 'tags']
+        fields = ['header', 'content']
 
 
 class MyUserChangeForm(UserChangeForm):

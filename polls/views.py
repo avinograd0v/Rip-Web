@@ -180,6 +180,23 @@ class QuestionCreate(LoginRequiredMixin, CreateView):
         return super(QuestionCreate, self).form_valid(form)
 
 
+class GetMaybeTags(LoginRequiredMixin, View):
+    model = Tag
+
+    def post(self, request, *args, **kwargs):
+        tags = self.model.objects.filter(word__icontains=request.POST.get('char'))\
+            .annotate(count=Count("question")).order_by('-count')
+
+        tags_dict = {}
+        for tag in tags:
+            tags_dict[tag.word] = tag.question_set.all().count()
+
+        return HttpResponse(
+            json.dumps(tags_dict),
+            content_type="application/json"
+        )
+
+
 class QuestionUpdate(LoginRequiredMixin, View):
     model = Question
     fields = ['header', 'content']

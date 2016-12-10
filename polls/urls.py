@@ -48,4 +48,6 @@ urlpatterns = [
     url(r'^user/(?P<pk>[0-9]+)/edit/$', views.UserUpdate.as_view(), name='edit-user'),
 
     url(r'^sort_questions/$', views.QuestionsSort.as_view(), name='sort-questions'),
+
+    url(r'^get_maybe_tags/$', views.GetMaybeTags.as_view(), name='get-maybe-tags'),
 ]
