@@ -1,0 +1,11 @@
+<div id="top-tags-container" class="panel panel-default">
+    <h4 class="text-center">Top tags</h4>
+    <div class="panel-body">
+        {% for tag in top_tags %}
+            <a href="#" {% if tag.id in request.session.tags %}
+               hidden {% endif %}>
+                {{ tag }}
+            </a>
+        {% endfor %}
+    </div>
+</div>

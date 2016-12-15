@@ -499,14 +499,12 @@ function add_answer() {
         data : { the_answer : $('#answer-add-form #answer-text').val() }, // data sent with the post request
 
         // handle a successful response
-        success : function(html) {
-            $('#answer-add-form #answer-text').val(''); // remove the value from the input
-            console.log(html); // log the returned json to the console
-            if($('#answers').text())
-                $('#answers').text("");
+        success : function(html, status, xhr) {
+            //$('#answer-add-form #answer-text').val(''); // remove the value from the input
+            //if($('#answers').text())
+            //    $('#answers').text("");
 
-            $(html).hide().prependTo("#answers").slideDown();
-            console.log("success"); // another sanity check
+            //$(html).hide().prependTo("#answers").slideDown();
         },
 
         // handle a non-successful response

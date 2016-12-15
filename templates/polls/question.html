@@ -5,7 +5,8 @@
     <div class="container panel panel-default col-md-8 col-md-offset-2">
         <div class="panel-body">
             <div class="row">
-                <div id="question-{{ question.id }}" class="detailed-question-container center-block panel panel-default row">
+                <div id="question-{{ question.id }}"
+                     class="detailed-question-container center-block panel panel-default row">
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-3">
@@ -26,7 +27,7 @@
                                             </button>
                                         </a>
                                     </div>
-                                    <div class="col-md-offset-2 col-md-1">
+                                    <div class="col-md-offset-1 col-md-1">
                                         <div class="rating text-justify">
                                             {{ question.rating }}
                                         </div>
@@ -123,4 +124,37 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block lpoll %}
+    <script>
+        var channelId = $('div[id^=question-]').attr('id').split('-')[1];
+        var last_etag = 0; //переменная для заголовка 'Etag'
+        var last_time = null; //переменная для заголовка 'Last-Modified'
+        function new_message() {
+            $.ajax({
+                url: 'http://localhost/listen/?cid=' + channelId,
+                type: "GET",
+                dataType: 'html',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Etag', last_etag);
+                    xhr.setRequestHeader('Last-Modified', last_time);
+                },
+                success: function (data, status, xhr) {
+                    last_etag = xhr.getResponseHeader('Etag'); //присваиваем новое значение переменной last_etag
+                                                               // из заголовка 'Etag' ответа
+                    last_time = xhr.getResponseHeader('Last-Modified'); // присваиваем новое значение переменной last_time
+                                                                        // из заголовка 'Last-Modified' ответа
+                    $(data).hide().prependTo("#answers").slideDown();
+                    setTimeout(new_message, 500);	 // переподключаемся сразу после получения ответа
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log(xhr, errmsg, err);
+                    // console.log("GEGEGE");
+                    // console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+            })
+        }
+        new_message();
+    </script>
 {% endblock %}

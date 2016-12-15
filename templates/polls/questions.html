@@ -20,7 +20,11 @@
         </div>
     </div>
     <div class="row">
-        <div class="container panel panel-default col-md-8 col-md-offset-2">
+        <div class="container col-md-2">
+            {% include 'polls/top_tags.html' %}
+            {% include 'polls/top_users.html' %}
+        </div>
+        <div class="container panel panel-default col-md-8">
             <div class="panel-body">
                 <div class="sort-by-container col-md-10">
                     <a id="sort-by-date" class="{% if 'date' in request.session.sort_by %} mark {% endif %}" href="#">
@@ -56,7 +60,7 @@
             </div>
         </div>
         <div id="tags-container" class="container panel panel-default col-md-2">
-            <h4 class="text-center">Tags</h4>
+            <h4 class="text-center">All tags</h4>
             <div class="panel-body">
                 {% for tag in tags %}
                     <a href="#" id="add-tag-{{ tag.id }}" {% if tag.id in request.session.tags %} hidden {% endif %}>

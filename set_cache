@@ -1,0 +1,2 @@
+#!/bin/bash
+python3 '/home/andrew/Рабочий стол/webDev/askService/manage.py' set_cache

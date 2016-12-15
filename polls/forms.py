@@ -56,14 +56,18 @@ class QuestionCreateForm(forms.ModelForm):
 
 
 class MyUserChangeForm(UserChangeForm):
-    password = forms.CharField(widget=forms.PasswordInput(), required=False)
+    #password = forms.CharField(widget=forms.PasswordInput(), required=False)
 
-    def clean_password(self):
-        password = self.cleaned_data['password']
-        return password
+    def __init__(self, *args, **kwargs):
+        super(MyUserChangeForm, self).__init__(*args, **kwargs)
+        del self.fields['password']
+
+    #def clean_password(self):
+    #    password = self.cleaned_data['password']
+    #    return password
 
     class Meta:
         model = User
-        fields = ('username', 'email')
+        fields = ('username', 'email', 'password')
 
 

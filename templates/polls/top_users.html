@@ -1,0 +1,10 @@
+<div id="top-users-container" class="panel panel-default">
+    <h4 class="text-center">Top users</h4>
+    <div class="panel-body">
+        {% for user in top_users %}
+            <a href="{% url 'polls:user-profile' user.id %}">
+                {{ user.username }}
+            </a>
+        {% endfor %}
+    </div>
+</div>

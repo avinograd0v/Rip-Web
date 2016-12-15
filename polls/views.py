@@ -12,7 +12,7 @@ from .models import User, Question, Answer, Tag
 import json
 from django.db.models import Count
 import operator
-from django.db.models import Q
+from django.db.models import Q, Sum, F, Case, When, IntegerField
 from functools import reduce
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import loader, Context
@@ -20,6 +20,10 @@ from .utils import paginate, sort_questions, filter_by_search, filter_by_tags
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from collections import OrderedDict
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
+from django.core.cache import cache
+import requests
 
 
 def index(request):
@@ -125,6 +129,8 @@ class QuestionsView(generic.ListView):
         except EmptyPage:
             questions = paginator.page(paginator.num_pages)
 
+        context['top_users'] = cache.get('top_users')
+        context['top_tags'] = cache.get('top_tags')
         context['tags'] = Tag.objects.all()
         context['all_questions'] = questions
         context['title'] = query if query else "All questions"
@@ -248,9 +254,6 @@ class UserUpdate(LoginRequiredMixin, View):
         if user_form.is_valid() and profile_form.is_valid():
             if profile_form.cleaned_data['avatar'] != "../media/default-user.png":
                 request.user.profile.avatar = profile_form.cleaned_data['avatar']
-
-            if user_form.cleaned_data['password'] != "":
-                request.user.set_password(user_form.cleaned_data['password'])
 
             user_form.save()
 
@@ -378,7 +381,10 @@ class AnswerCreate(LoginRequiredMixin, View):
         context = dict()
         context['answer'] = answer
         context['add_answer_form'] = AnswerForm(instance=answer)
-        return render(request, self.template_name, context)
+        rHtml = render(request, self.template_name, context)
+        channel_id = {'cid': answer.question.id}
+        r = requests.put('http://localhost/publish', rHtml, params=channel_id)
+        return rHtml
 
 
 class AnswerUpdate(LoginRequiredMixin, View):
