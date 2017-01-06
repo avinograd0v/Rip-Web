@@ -115,8 +115,12 @@ class QuestionsView(generic.ListView):
         for tag_id in reversed(active_tags_ids):
             context.get('active_tags').append(Tag.objects.get(id=tag_id))
 
-        questions = filter_by_tags(active_tags_ids, self.model.objects.all())
-        questions = filter_by_search(query, questions)
+        if query:
+            questions = self.model.objects.search(query + '*')
+        else:
+            questions = self.model.objects.all()
+        questions = filter_by_tags(active_tags_ids, questions)
+        #questions = filter_by_search(query, questions)
         questions = sort_questions(self.request.session.get('sort_by'), questions)
 
         paginator = Paginator(questions, 5)

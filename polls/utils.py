@@ -53,9 +53,10 @@ def filter_by_tags(active_tags_ids, queryset):
 
 def filter_by_search(query, queryset):
     if query:
-        query_list = query.split()
-        questions = queryset.filter(reduce(operator.and_, (Q(header__icontains=q) for q in query_list)) |
-                                    reduce(operator.and_, (Q(content__icontains=q) for q in query_list)))
+        questions = queryset.search(query + '*')
+        #query_list = query.split()
+        #questions = queryset.filter(reduce(operator.and_, (Q(header__icontains=q) for q in query_list)) |
+                                    #reduce(operator.and_, (Q(content__icontains=q) for q in query_list)))
     else:
         questions = queryset
 

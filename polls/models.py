@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from polls.fulltext import SearchManager
 
 
 class Profile(models.Model):
@@ -21,6 +22,8 @@ class Profile(models.Model):
 
 
 class Question(models.Model):
+    objects = SearchManager(['header', 'content'])
+
     header = models.CharField(max_length=60)
     content = models.TextField(blank=True)
     author = models.ForeignKey(User)
